@@ -1,6 +1,6 @@
 <template>
   <div>
-      I am goods
+      <i class="icon-close"></i>
   </div>
 </template>
 
@@ -13,3 +13,8 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus">
+ 
+</style>
+

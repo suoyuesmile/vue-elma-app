@@ -40,13 +40,13 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-// @import "../../assets/styles/minxi.styl"
+@import "../../assets/styles/mixin.styl"
 
 .tab
     display flex
     width 100%
-    height 80px
-    line-height 80px
+    height 40px
+    line-height 40px
     border-bottom 1px solid rgba(17, 27, 0, 0.1)
     text-decoration none
     .tab-item
@@ -55,7 +55,7 @@ export default {
         a
             text-decoration none
             color rgb(240 20 20)
-            font-size 28px
+            font-size 14px
         
   
 </style>
