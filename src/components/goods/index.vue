@@ -1,10 +1,12 @@
 <template>
   <div class="goods">
-      <div class="menu-wrapper">
+      <div class="menu-wrapper" ref="menuWrapper">
         <ul>
           <li class="menu-item"
           v-for="(item, index) in goods"
           :key="index"
+          :class="{'current': currentIndex === index}"
+          @click="selectMenu(index)"
           >
 
             <span class="text">
@@ -16,9 +18,9 @@
           </li>
         </ul>
       </div>
-      <div class="foods-wrapper">
+      <div class="foods-wrapper" ref="foodsWrapper">
         <ul>
-          <li class="food-list"
+          <li class="food-list food-list-hook"
           v-for="(item, index) in goods"
           :key="index"
           >
@@ -38,8 +40,8 @@
                     <span class="rating">好评率{{food.rating}}%</span>
                   </div>
                   <div class="price">
-                    <span class="now">${{food.price}}</span>
-                    <span class="old" v-show="food.oldPrice">${{food.oldPrice}}</span>
+                    <span class="now">¥{{food.price}}</span>
+                    <span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
                   </div>
                 </div>
               </li>
@@ -51,6 +53,8 @@
 </template>
 
 <script>
+import BScroll from 'better-scroll'
+
 export default {
   props: {
     seller: {
@@ -61,15 +65,68 @@ export default {
     this.$http.get('./api/goods').then((response) => {
       response = response.body
       this.goods = response
-      // console.log(this.goods)
+      this.$nextTick(() => {
+        this._initScroll()
+        this._calculateHeight()
+      })
     })
   },
   data() {
     return {
-      goods: []
+      goods: [],
+      listHeight: [],
+      scrollY: 0
+    }
+  },
+  computed: {
+    currentIndex() {
+      for (let i = 0; i < this.listHeight.length; i++) {
+        const height1 = this.listHeight[i]
+        const height2 = this.listHeight[i + 1]
+        
+        if (!height2 || this.scrollY >= height1 && this.scrollY < height2) {
+          // console.log('y'+this.scrollY+' h1:'+height1+' h2:'+height2)
+          return i
+        }
+        return 0
+      }
+    }
+  },
+  methods: {
+    _initScroll() {
+      this.menuScroll = new BScroll(this.$refs.menuWrapper, {
+        click: true
+      })
+      this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
+        probeType: 3,
+      })
+      this.foodsScroll.on('scroll', (pos) => {        
+        this.scrollY = Math.abs(Math.round(pos.y))
+      })
+    },
+    _calculateHeight() {
+      let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      let height = 0
+      this.listHeight.push(height)
+      for (let i = 0; i < foodList.length; i++) {
+        const item = foodList[i]
+        height += item.clientHeight
+        this.listHeight.push(height)
+      }
+      // console.log(this.listHeight);
+      // console.log(this.$refs.foodsWrapper.)
+    },
+    selectMenu(index) {
+      // if(event._constructed) {
+      //   return
+      // }
+      console.log(index);
+      let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      let el = foodList[index]
+      this.foodsScroll.scrollToElement(el, 300)
     }
   }
-};
+}
 </script>
 
 <style lang="stylus">
@@ -86,6 +143,7 @@ export default {
     flex 0 0 80px
     width 80px
     background #f3f5f7
+    overflow auto
     .menu-item
       display table
       padding 0 12px 0 12px
@@ -94,6 +152,14 @@ export default {
       width 56px
       background #f3f5f7
       border-bottom 1px solid rgba(7,17,27,0.1)
+      &.current
+        position relative
+        margin-top -1px
+        z-index 10
+        .text
+          font-weight 700
+        background #fff
+        border-bottom 0px
       &:last-child
         border-bottom 0px
       .text
@@ -114,6 +180,7 @@ export default {
             bg-image('../../assets/images/special_3')
   .foods-wrapper
     flex 1
+    // overflow scroll
     .title
       vertical-align middle
       padding-left 14px
@@ -141,11 +208,11 @@ export default {
           color rgb(7,17,27)
         .desc,.extra
           margin-top 8px
-          line-height 10px
+          line-height 12px
           font-size 10px
           color rgb(147,153,159)
           .count
-            margin-right 6px
+            margin-right 12px
         .price
           font-size 10px
           line-height 24px
@@ -157,6 +224,6 @@ export default {
           .old
             text-decoration line-through
             font-size 10px
-            color color rgb(147,153,159)
+            color rgb(147,153,159)
 </style>
 
