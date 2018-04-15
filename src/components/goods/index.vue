@@ -49,11 +49,13 @@
           </li>
         </ul>
       </div>
+      <Cart></Cart>
   </div>
 </template>
 
 <script>
 import BScroll from 'better-scroll'
+import Cart from './cart.vue'
 
 export default {
   props: {
@@ -125,6 +127,9 @@ export default {
       let el = foodList[index]
       this.foodsScroll.scrollToElement(el, 300)
     }
+  },
+  components: {
+    Cart
   }
 }
 </script>
