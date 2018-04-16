@@ -43,28 +43,27 @@
                     <span class="now">¥{{food.price}}</span>
                     <span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
                   </div>
+                  <div class="cartcontrol-wrapper">
+                    <CartControl :food="food"></CartControl>
+                  </div>
                 </div>
               </li>
             </ul>
           </li>
         </ul>
       </div>
-      <Cart></Cart>
+      <Cart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
   </div>
 </template>
 
 <script>
 import BScroll from 'better-scroll'
 import Cart from './cart.vue'
+import CartControl from './cartcontrol.vue'
 
 export default {
-  props: {
-    seller: {
-      type: Object
-    }
-  },
-  created(){
-    this.$http.get('./api/goods').then((response) => {
+  created() {
+    this.$http.get('./api/goods').then(response => {
       response = response.body
       this.goods = response
       this.$nextTick(() => {
@@ -77,7 +76,8 @@ export default {
     return {
       goods: [],
       listHeight: [],
-      scrollY: 0
+      scrollY: 0,
+      seller: this.$route.params
     }
   },
   computed: {
@@ -85,8 +85,8 @@ export default {
       for (let i = 0; i < this.listHeight.length; i++) {
         const height1 = this.listHeight[i]
         const height2 = this.listHeight[i + 1]
-        
-        if (!height2 || this.scrollY >= height1 && this.scrollY < height2) {
+
+        if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
           // console.log('y'+this.scrollY+' h1:'+height1+' h2:'+height2)
           return i
         }
@@ -100,14 +100,16 @@ export default {
         click: true
       })
       this.foodsScroll = new BScroll(this.$refs.foodsWrapper, {
-        probeType: 3,
+        probeType: 3
       })
-      this.foodsScroll.on('scroll', (pos) => {        
+      this.foodsScroll.on('scroll', pos => {
         this.scrollY = Math.abs(Math.round(pos.y))
       })
     },
     _calculateHeight() {
-      let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      let foodList = this.$refs.foodsWrapper.getElementsByClassName(
+        'food-list-hook'
+      )
       let height = 0
       this.listHeight.push(height)
       for (let i = 0; i < foodList.length; i++) {
@@ -122,21 +124,23 @@ export default {
       // if(event._constructed) {
       //   return
       // }
-      console.log(index);
-      let foodList = this.$refs.foodsWrapper.getElementsByClassName('food-list-hook')
+      console.log(this.seller)
+      let foodList = this.$refs.foodsWrapper.getElementsByClassName(
+        'food-list-hook'
+      )
       let el = foodList[index]
       this.foodsScroll.scrollToElement(el, 300)
     }
   },
   components: {
-    Cart
+    Cart,
+    CartControl
   }
 }
 </script>
 
 <style lang="stylus">
 @import '../../assets/styles/mixin.styl'
-
 .goods
   display flex
   position absolute
@@ -156,7 +160,7 @@ export default {
       height 54px
       width 56px
       background #f3f5f7
-      border-bottom 1px solid rgba(7,17,27,0.1)
+      border-bottom 1px solid rgba(7, 17, 27, 0.1)
       &.current
         position relative
         margin-top -1px
@@ -173,7 +177,7 @@ export default {
         line-height 14px
         font-size 12px
         font-weight 200
-        color rgb(24,20,20)
+        color rgb(24, 20, 20)
         .icon
           display inline-block
           vertical-align top
@@ -192,30 +196,31 @@ export default {
       border-left 2px solid #d9dde1
       line-height 26px
       font-size 14px
-      color rgb(147,153,159)
+      color rgb(147, 153, 159)
       background #f3f5f7
     .food-item
       display flex
       margin 18px
       padding-bottom 18px
-      border-bottom 1px solid rgba(7,17,27,0.1)
-      &:last-child 
+      border-bottom 1px solid rgba(7, 17, 27, 0.1)
+      &:last-child
         border-bottom 0px
       .icon
         flex 0 0 57px
         border-radius 2px
       .content
+        position relative
         flex 1
         margin-left 10px
         .name
           line-height 14px
           font-size 14px
-          color rgb(7,17,27)
-        .desc,.extra
+          color rgb(7, 17, 27)
+        .desc, .extra
           margin-top 8px
           line-height 12px
           font-size 10px
-          color rgb(147,153,159)
+          color rgb(147, 153, 159)
           .count
             margin-right 12px
         .price
@@ -225,10 +230,14 @@ export default {
           .now
             font-size 14px
             margin 2px 8px 0px 2px
-            color rgb(240,20,20)
+            color rgb(240, 20, 20)
           .old
             text-decoration line-through
             font-size 10px
-            color rgb(147,153,159)
+            color rgb(147, 153, 159)
+        .cartcontrol-wrapper
+          position absolute
+          right 0px
+          bottom -12px
 </style>
 

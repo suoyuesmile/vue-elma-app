@@ -1,6 +1,6 @@
 <template>
   <div>
-      I am comments
+      <i class="icon icon-shopping_cart"></i>
   </div>
 </template>
 
@@ -8,8 +8,12 @@
 export default {
   data() {
       return {
-          
+
       }
   }
 }
 </script>
+
+<style lang="stylus">
+</style>
+
