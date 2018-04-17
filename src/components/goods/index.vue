@@ -1,58 +1,45 @@
 <template>
   <div class="goods">
-      <div class="menu-wrapper" ref="menuWrapper">
-        <ul>
-          <li class="menu-item"
-          v-for="(item, index) in goods"
-          :key="index"
-          :class="{'current': currentIndex === index}"
-          @click="selectMenu(index)"
-          >
-
-            <span class="text">
-              <span class="icon special"
-              v-show="item.type>0"
-              ></span>
-              {{item.name}}
-            </span>
-          </li>
-        </ul>
-      </div>
-      <div class="foods-wrapper" ref="foodsWrapper">
-        <ul>
-          <li class="food-list food-list-hook"
-          v-for="(item, index) in goods"
-          :key="index"
-          >
-            <h1 class="title">{{item.name}}</h1>
-            <ul>
-              <li class="food-item"
-              v-for="(food, index) in item.foods"
-              :key="index">
-                <div class="icon">
-                  <img src="../../assets/images/food.jpg" width="56" height="56" alt="商品图片">
+    <div class="menu-wrapper" ref="menuWrapper">
+      <ul>
+        <li class="menu-item" v-for="(item, index) in goods" :key="index" :class="{'current': currentIndex === index}" @click="selectMenu(index)">
+          <span class="text">
+            <span class="icon special" v-show="item.type>0"></span>
+            {{item.name}}
+          </span>
+        </li>
+      </ul>
+    </div>
+    <div class="foods-wrapper" ref="foodsWrapper">
+      <ul>
+        <li class="food-list food-list-hook" v-for="(item, index) in goods" :key="index">
+          <h1 class="title">{{item.name}}</h1>
+          <ul>
+            <li class="food-item" v-for="(food, index) in item.foods" :key="index">
+              <div class="icon">
+                <img src="../../assets/images/food.jpg" width="56" height="56" alt="商品图片">
+              </div>
+              <div class="content">
+                <h2 class="name">{{food.name}}</h2>
+                <p class="desc">{{food.description}}</p>
+                <div class="extra">
+                  <span class="count">月售{{food.sellCount}}份</span>
+                  <span class="rating">好评率{{food.rating}}%</span>
                 </div>
-                <div class="content">
-                  <h2 class="name">{{food.name}}</h2>
-                  <p class="desc">{{food.description}}</p>
-                  <div class="extra">
-                    <span class="count">月售{{food.sellCount}}份</span>
-                    <span class="rating">好评率{{food.rating}}%</span>
-                  </div>
-                  <div class="price">
-                    <span class="now">¥{{food.price}}</span>
-                    <span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
-                  </div>
-                  <div class="cartcontrol-wrapper">
-                    <CartControl :food="food"></CartControl>
-                  </div>
+                <div class="price">
+                  <span class="now">¥{{food.price}}</span>
+                  <span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
                 </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-      <Cart :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
+                <div class="cartcontrol-wrapper">
+                  <CartControl :food="food"></CartControl>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <Cart ref="cart" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
   </div>
 </template>
 
@@ -71,6 +58,9 @@ export default {
         this._calculateHeight()
       })
     })
+    this.$on('childListened', (target) => {
+      this._drop(target)
+    })
   },
   data() {
     return {
@@ -85,9 +75,7 @@ export default {
       for (let i = 0; i < this.listHeight.length; i++) {
         const height1 = this.listHeight[i]
         const height2 = this.listHeight[i + 1]
-
         if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
-          // console.log('y'+this.scrollY+' h1:'+height1+' h2:'+height2)
           return i
         }
         return 0
@@ -117,14 +105,11 @@ export default {
         height += item.clientHeight
         this.listHeight.push(height)
       }
-      // console.log(this.listHeight);
-      // console.log(this.$refs.foodsWrapper.)
+    },
+    _drop(target) {
+      this.$refs.cart.drop(target)
     },
     selectMenu(index) {
-      // if(event._constructed) {
-      //   return
-      // }
-      console.log(this.seller)
       let foodList = this.$refs.foodsWrapper.getElementsByClassName(
         'food-list-hook'
       )
@@ -189,7 +174,6 @@ export default {
             bg-image('../../assets/images/special_3')
   .foods-wrapper
     flex 1
-    // overflow scroll
     .title
       vertical-align middle
       padding-left 14px

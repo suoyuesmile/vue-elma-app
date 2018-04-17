@@ -1,13 +1,13 @@
 <template>
   <div class="cartcontrol">
-    <div class="cart-decrease"
-    v-show="food.count>0"
-    @click="decreaseCart"
-    transition="move">
-      <span class="inner icon-remove_circle_outline"></span>
-    </div>
+    <transition name="move">
+      <div class="cart-decrease icon-remove_circle_outline"
+      v-show="food.count>0"
+      @click="decreaseCart">
+      </div>
+    </transition>
     <div class="cart-count" v-show="food.count>0">{{food.count}}</div>
-    <div class="cart-add icon-add_circle" @click="addCart"></div>
+    <div ref="cartadd" class="cart-add icon-add_circle" @click="addCart" @childListened="childListened"></div>
   </div>
 </template>
 
@@ -30,10 +30,12 @@ export default {
       } else {
         this.food.count++
       }
+      this.$parent.$emit('childListened', event.target)
     },
     decreaseCart() {
       this.food.count--
-    }
+    },
+    childListened(){}
   }
 }
 </script>
@@ -44,22 +46,17 @@ export default {
   .cart-decrease
     display inline-block
     padding 6px
-    transition all 0.4s linear
-    &.move-transition
-      opacity 1
-      transform translate3d(0, 0, 0)
-    .inner
-      display inline-block
-      line-height 24px
-      font-size 24px
-      color rgb(0, 160, 220)
-      transition all 0.4s linear
-      transform rotate(0)
-    &.move-enter, &.move-leave
-      opacity 0
-      transform translate3d(24px, 0, 0)
-      .inner
-        transform rotate(180)
+    line-height 24px
+    font-size 24px
+    color rgb(0, 160, 220)
+  .move-enter-active, .move-leave-active
+    transition 0.3s all linear
+  .move-enter, .move-leave-to
+    opacity 0
+    transform translate3d(24px,0,0) rotate(180deg)
+  .move-enter-to, .move-leave
+    opacity 1
+    transform translate3d(0,0,0) rotate3d(0)
   .cart-count
     display inline-block
     vertical-align top

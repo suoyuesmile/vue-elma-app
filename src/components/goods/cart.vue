@@ -1,22 +1,28 @@
 <template>
   <div class="cart">
-      <div class="content">
-          <div class="content-left">
-              <div class="logo-wrapper">
-                  <div class="logo" :class="{'highlight': totalCount>0}">
-                    <i class="icon-shopping_cart" :class="{'highlight': totalCount>0}"></i>
-                  </div>
-                  <div class="num">{{totalCount}}</div>
-              </div>
-              <div class="price" :class="{'highlight': totalCount>0}">¥{{totalPrice}}</div>
-              <div class="desc">另需配送费¥ {{deliveryPrice}}元</div>
+    <div class="content">
+      <div class="content-left">
+        <div class="logo-wrapper">
+          <div class="logo" :class="{'highlight': totalCount>0}">
+            <i class="icon-shopping_cart" :class="{'highlight': totalCount>0}"></i>
           </div>
-          <div class="content-right" :class="payClass">
-            <div class="pay-desc" :class="payClass">
-              {{payDesc}}
-            </div>
-          </div>
+          <div class="num">{{totalCount}}</div>
+        </div>
+        <div class="price" :class="{'highlight': totalCount>0}">¥{{totalPrice}}</div>
+        <div class="desc">另需配送费¥ {{deliveryPrice}}元</div>
       </div>
+      <div class="content-right" :class="payClass">
+        <div class="pay-desc" :class="payClass">
+          {{payDesc}}
+        </div>
+      </div>
+      <div class="ball-container">
+        <transition-group @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter">
+          <div class="ball" v-for="(ball, index) in balls" :key="index" v-show="ball.show">
+          </div>
+        </transition-group>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,7 +34,7 @@ export default {
       default: () => [
         {
           price: 22,
-          count: 4
+          count: 0
         }
       ]
     },
@@ -43,19 +49,37 @@ export default {
   },
   data() {
     return {
+      balls: [
+        {
+          show: false
+        },
+        {
+          show: false
+        },
+        {
+          show: false
+        },
+        {
+          show: false
+        },
+        {
+          show: false
+        }
+      ],
+      dropBall: []
     }
   },
   computed: {
     totalPrice() {
       let total = 0
-      this.selectedFoods.forEach((food) => {
+      this.selectedFoods.forEach(food => {
         total += food.price * food.count
       })
       return total
     },
     totalCount() {
       let totalCount = 0
-      this.selectedFoods.forEach((food) => {
+      this.selectedFoods.forEach(food => {
         totalCount += food.count
       })
       return totalCount
@@ -64,7 +88,7 @@ export default {
       if (this.totalPrice === 0) {
         return `¥${this.minPrice}元起送`
       } else if (this.totalPrice < this.minPrice) {
-        return `还差¥${this.minPrice-this.totalPrice}起送`
+        return `还差¥${this.minPrice - this.totalPrice}起送`
       } else {
         return '结算'
       }
@@ -74,6 +98,51 @@ export default {
         return 'not-enough'
       } else {
         return 'enough'
+      }
+    }
+  },
+  methods: {
+    drop(el) {
+      for (let i = 0; i < this.balls.length; i++) {
+        let ball = this.balls[i]
+        if (!ball.show) {
+          ball.show = true
+          ball.el = el
+          this.dropBall.push(ball)
+          // console.log(this.dropBall)
+          return
+        }
+      }
+    },
+    beforeEnter(el) {
+      let count = this.balls.length
+      console.log(el);
+
+      while (count--) {
+        let ball = this.balls[count]
+        if (ball.show) {
+          let rect = ball.el.getBoundingClientRect()
+          let x = rect.left - 32
+          let y = -(window.innerHeight - rect.top -22)
+          el.style.display = ''
+          el.style.transform = `translate3d(${x}px,${y}px,0)`
+          el.style.transition = '0.8s all'
+          // el.style.transform = `translate3d(${x}px,${y}px,0)`
+        }
+      }
+    },
+    enter(el, done) {
+      let rf = el.offsetHeight
+      this.$nextTick(() => {
+        el.style.webkitTransform = 'translate3d(0,0,0)'
+        el.style.transform = 'translate3d(0,0,0)'
+      })
+      done()
+    },
+    afterEnter(el) {
+      let ball = this.dropBall.shift()
+      if (ball) {
+        ball.show = false
       }
     }
   }
@@ -114,14 +183,14 @@ export default {
           border-radius 50%
           background rgb(42, 52, 60)
           &.highlight
-            background-color rgb(0,160,220)
+            background-color rgb(0, 160, 220)
           .icon-shopping_cart
             margin-left 10px
             line-height 44px
             font-size 24px
-            color rgba(255,255,255,0.5)
+            color rgba(255, 255, 255, 0.5)
             &.highlight
-              color rgb(255,255,255)
+              color rgb(255, 255, 255)
         .num
           position absolute
           top 0
@@ -130,12 +199,12 @@ export default {
           height 16px
           line-height 16px
           border-radius 12px
-          background rgb(240,20,20)
-          box-shadow 0 4 8 0 rgba(0,0,0,.4)
+          background rgb(240, 20, 20)
+          box-shadow 0 4 8 0 rgba(0, 0, 0, 0.4)
           text-align center
           font-size 12px
           font-weight 700
-          color rgb(255,255,255)
+          color rgb(255, 255, 255)
       .price
         display inline-block
         margin-top 16px
@@ -145,14 +214,14 @@ export default {
         height 24px
         font-weight 700
         font-size 16px
-        color rgba(255,255,255,0.4)
-        border-right 1px solid rgba(255,255,255,0.1)
+        color rgba(255, 255, 255, 0.4)
+        border-right 1px solid rgba(255, 255, 255, 0.1)
         &.highlight
-          color rgb(255,255,255)
+          color rgb(255, 255, 255)
       .desc
         display inline-block
         margin-left 12px
-        color rgba(255,255,255,0.4)
+        color rgba(255, 255, 255, 0.4)
         font-size 10px
         font-weight 200
     .content-right
@@ -161,17 +230,27 @@ export default {
       padding-top 16px
       background rgb(42, 52, 60)
       &.enough
-          background-color #00b43c
+        background-color #00b43c
       &.not-enough
-          background-color #2b333b
+        background-color #2b333b
       .pay-desc
         line-height 24px
         text-align center
         font-size 12px
         font-weight 700
-        color rgba(255,255,255,0.4)
+        color rgba(255, 255, 255, 0.4)
         &.enough
-          color rgb(255,255,255)
+          color rgb(255, 255, 255)
         &.not-enough
           background-color #2b333b
+  .ball-container
+    .ball
+      position fixed
+      left 32px
+      bottom 22px
+      z-index 200
+      width 16px
+      height 16px
+      border-radius 50%
+      background rgb(0, 160, 220)
 </style>
