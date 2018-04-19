@@ -15,7 +15,7 @@
         <li class="food-list food-list-hook" v-for="(item, index) in goods" :key="index">
           <h1 class="title">{{item.name}}</h1>
           <ul>
-            <li class="food-item" v-for="(food, index) in item.foods" :key="index" @click="selectedFood(food, $event)">
+            <li class="food-item" v-for="(food, index) in item.foods" :key="index" @click="viewFood(food, $event)">
               <div class="icon">
                 <img src="../../assets/images/food.jpg" width="56" height="56" alt="商品图片">
               </div>
@@ -39,8 +39,8 @@
         </li>
       </ul>
     </div>
-    <Cart ref="cart" :selected-foods="[{price:10, count:2}]" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
-    <Food :food="selectedFood"></Food>
+    <Cart ref="cart" :selected-foods="selectedFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
+    <!-- <Food :food=""></Food> -->
   </div>
 </template>
 
@@ -67,7 +67,6 @@ export default {
       listHeight: [],
       scrollY: 0,
       seller: this.$route.params,
-      selectedFood: {}
     }
   },
   computed: {
@@ -80,6 +79,17 @@ export default {
         }
         return 0
       }
+    },
+    selectedFoods() {
+      let foods = []
+      this.goods.forEach((good) => {
+        good.foods.forEach((food) => {
+          if (food.count) {
+            foods.push(food)
+          }
+        })
+      })
+      return foods
     }
   },
   methods: {
@@ -121,11 +131,11 @@ export default {
       let el = foodList[index]
       this.foodsScroll.scrollToElement(el, 300)
     },
-    selectFood(food, event) {
+    viewFood(food, event) {
       if(!event._constructed) {
         return
       }
-      this.selectedFood = food
+      // this.selectedFood = food
     }
   },
   components: {
