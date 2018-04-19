@@ -15,7 +15,7 @@
         <li class="food-list food-list-hook" v-for="(item, index) in goods" :key="index">
           <h1 class="title">{{item.name}}</h1>
           <ul>
-            <li class="food-item" v-for="(food, index) in item.foods" :key="index">
+            <li class="food-item" v-for="(food, index) in item.foods" :key="index" @click="selectedFood(food, $event)">
               <div class="icon">
                 <img src="../../assets/images/food.jpg" width="56" height="56" alt="商品图片">
               </div>
@@ -31,7 +31,7 @@
                   <span class="old" v-show="food.oldPrice">¥{{food.oldPrice}}</span>
                 </div>
                 <div class="cartcontrol-wrapper">
-                  <CartControl :food="food"></CartControl>
+                  <CartControl :food="food" @childListened="drop"></CartControl>
                 </div>
               </div>
             </li>
@@ -39,7 +39,8 @@
         </li>
       </ul>
     </div>
-    <Cart ref="cart" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
+    <Cart ref="cart" :selected-foods="[{price:10, count:2}]" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
+    <Food :food="selectedFood"></Food>
   </div>
 </template>
 
@@ -47,6 +48,7 @@
 import BScroll from 'better-scroll'
 import Cart from './cart.vue'
 import CartControl from './cartcontrol.vue'
+import Food from './food.vue'
 
 export default {
   created() {
@@ -58,16 +60,14 @@ export default {
         this._calculateHeight()
       })
     })
-    this.$on('childListened', (target) => {
-      this._drop(target)
-    })
   },
   data() {
     return {
       goods: [],
       listHeight: [],
       scrollY: 0,
-      seller: this.$route.params
+      seller: this.$route.params,
+      selectedFood: {}
     }
   },
   computed: {
@@ -106,8 +106,13 @@ export default {
         this.listHeight.push(height)
       }
     },
-    _drop(target) {
-      this.$refs.cart.drop(target)
+    drop(target) {
+      // 异步动画，优化体验
+      // console.log(target);
+
+      this.$nextTick(() => {
+        this.$refs.cart.drop(target)
+      })
     },
     selectMenu(index) {
       let foodList = this.$refs.foodsWrapper.getElementsByClassName(
@@ -115,11 +120,18 @@ export default {
       )
       let el = foodList[index]
       this.foodsScroll.scrollToElement(el, 300)
+    },
+    selectFood(food, event) {
+      if(!event._constructed) {
+        return
+      }
+      this.selectedFood = food
     }
   },
   components: {
     Cart,
-    CartControl
+    CartControl,
+    Food
   }
 }
 </script>

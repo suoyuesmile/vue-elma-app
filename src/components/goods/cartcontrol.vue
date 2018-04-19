@@ -7,7 +7,7 @@
       </div>
     </transition>
     <div class="cart-count" v-show="food.count>0">{{food.count}}</div>
-    <div ref="cartadd" class="cart-add icon-add_circle" @click="addCart" @childListened="childListened"></div>
+    <div ref="cartadd" class="cart-add icon-add_circle" @click="addCart" @childListened="childListened()"></div>
   </div>
 </template>
 
@@ -30,12 +30,13 @@ export default {
       } else {
         this.food.count++
       }
-      this.$parent.$emit('childListened', event.target)
+      this.$emit('childListened', event.target)
     },
     decreaseCart() {
       this.food.count--
     },
-    childListened(){}
+    childListened(){
+    },
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="cart">
-    <div class="content">
+    <div class="content" @click="toggleList">
       <div class="content-left">
         <div class="logo-wrapper">
           <div class="logo" :class="{'highlight': totalCount>0}">
@@ -23,19 +23,36 @@
         </transition-group>
       </div>
     </div>
+    <transition name="fold" v-show="listShow">
+      <div class="cart-list">
+        <div class="list-header">
+          <h1 class="title">购物车</h1>
+          <span class="empty">清空</span>
+        </div>
+        <div class="list-container">
+          <ul>
+            <li class="food" v-for="(food, index) in selectedFoods" :key="index">
+              <span class="name">{{food.name}}</span>
+              <div class="price">
+                <span>¥{{food.price}}</span>
+              </div>
+              <CartControl :food="food"></CartControl>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script>
+import CartControl from './cartcontrol.vue'
+
 export default {
   props: {
     selectedFoods: {
       type: Array,
       default: () => [
-        {
-          price: 22,
-          count: 0
-        }
       ]
     },
     deliveryPrice: {
@@ -66,7 +83,8 @@ export default {
           show: false
         }
       ],
-      dropBall: []
+      dropBall: [],
+      fold: true
     }
   },
   computed: {
@@ -99,6 +117,14 @@ export default {
       } else {
         return 'enough'
       }
+    },
+    listShow() {
+      if (!this.totalCount) {
+        // this.fold = true
+        return false
+      }
+      let show = !this.fold
+      return show
     }
   },
   methods: {
@@ -109,25 +135,27 @@ export default {
           ball.show = true
           ball.el = el
           this.dropBall.push(ball)
-          // console.log(this.dropBall)
           return
         }
       }
     },
+    toggleList() {
+      if (!this.totalCount) {
+        return
+      }
+      this.fold = !this.fold
+    },
     beforeEnter(el) {
       let count = this.balls.length
-      console.log(el);
-
       while (count--) {
         let ball = this.balls[count]
         if (ball.show) {
           let rect = ball.el.getBoundingClientRect()
           let x = rect.left - 32
-          let y = -(window.innerHeight - rect.top -22)
+          let y = -(window.innerHeight - rect.top - 22)
           el.style.display = ''
           el.style.transform = `translate3d(${x}px,${y}px,0)`
-          el.style.transition = '0.8s all'
-          // el.style.transform = `translate3d(${x}px,${y}px,0)`
+          el.style.transition = '0.8s all cubic-bezier(.17,.67,.59,.93)'
         }
       }
     },
@@ -145,6 +173,9 @@ export default {
         ball.show = false
       }
     }
+  },
+  components: {
+    CartControl
   }
 }
 </script>
@@ -157,7 +188,6 @@ export default {
   z-index 50
   height 58px
   width 100%
-  // background #141d27
   opacity 0.9
   .content
     display flex
@@ -253,4 +283,15 @@ export default {
       height 16px
       border-radius 50%
       background rgb(0, 160, 220)
+  .fold-enter-active, .fold-leave-active
+    transition 0.5s all linear
+  .fold-enter, .fold-leaver-to
+    transform translate3d(0, -100%, 0)
+  .fold-enter-to, .fold-leave
+    transform translate3d(0, 0, 0)
+  .cart-list
+    position absolute
+    top 0
+    z-index -1
+    width 100%
 </style>

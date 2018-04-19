@@ -26,7 +26,7 @@
       <i class="icon-keybroad_arrow_right"></i>
     </div>
     <div class="background">
-      <img src="./bg.jpg" width="100%" height="134" alt="背景">
+      <img src="../../assets/images/bg.jpg" width="100%" height="134" alt="背景">
     </div>
     <transition name="fade">
       <div v-show="detailShow" class="detail">
