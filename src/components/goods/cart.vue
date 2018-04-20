@@ -218,7 +218,7 @@ export default {
   z-index 50
   height 56px
   width 100%
-  opacity 0.9
+  opacity 1
   .content
     display flex
     background #141d27
@@ -317,17 +317,16 @@ export default {
     transition 0.5s all linear
   .fold-enter, .fold-leave-to
     opacity 0
-    transform translate(0, 0)
-    opacity 1
+    transform translate3d(0, 0, 0)
   .fold-enter-to, .fold-leave
-    transform translate(0, -100%)
+    opacity 1
+    transform translate3d(0, -100%, 0)
   .cart-list
     position absolute
-    opacity 1
     top 0px
     left 0px
     z-index -1
-    transform translate(0, -100%)
+    transform translate3d(0, -100%, 0)
     width 100%
     .list-header
       padding 0 18px

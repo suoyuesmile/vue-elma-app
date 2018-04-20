@@ -17,7 +17,7 @@
           <ul>
             <li class="food-item" v-for="(food, index) in item.foods" :key="index" @click="viewFood(food, $event)">
               <div class="icon">
-                <img src="../../assets/images/food.jpg" width="56" height="56" alt="商品图片">
+                <img src="../../assets/images/food.jpg" width="56" height="56" alt="商品图片"  >
               </div>
               <div class="content">
                 <h2 class="name">{{food.name}}</h2>
@@ -40,8 +40,9 @@
       </ul>
     </div>
     <Cart ref="cart" :selected-foods="selectedFoods" :delivery-price="seller.deliveryPrice" :min-price="seller.minPrice"></Cart>
-    <!-- <Food :food=""></Food> -->
+    <Food ref="food" :food="selectedFood"></Food>
   </div>
+
 </template>
 
 <script>
@@ -67,6 +68,7 @@ export default {
       listHeight: [],
       scrollY: 0,
       seller: this.$route.params,
+      selectedFood: {}
     }
   },
   computed: {
@@ -132,10 +134,15 @@ export default {
       this.foodsScroll.scrollToElement(el, 300)
     },
     viewFood(food, event) {
-      if(!event._constructed) {
-        return
-      }
-      // this.selectedFood = food
+      // if(event._constructed) {
+      //   return
+      // }
+      console.log(food);
+
+      this.selectedFood = food
+      this.$refs.food.show()
+
+
     }
   },
   components: {

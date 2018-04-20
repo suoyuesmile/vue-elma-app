@@ -3,11 +3,11 @@
     <transition name="move">
       <div class="cart-decrease icon-remove_circle_outline"
       v-show="food.count>0"
-      @click="decreaseCart">
+      @click.stop.prevent="decreaseCart">
       </div>
     </transition>
     <div class="cart-count" v-show="food.count>0">{{food.count}}</div>
-    <div ref="cartadd" class="cart-add icon-add_circle" @click="addCart" @childListened="childListened()"></div>
+    <div ref="cartadd" class="cart-add icon-add_circle" @click.stop.prevent="addCart" @childListened="childListened()"></div>
   </div>
 </template>
 
